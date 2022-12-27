@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: __POD_NAME__
+  namespace: default
+spec:
+  containers:
+  - name: scrape-pod
+    image: __IMAGE_URI__
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    env:
+    - name: BUCKET_NAME
+      value: "__BUCKET_NAME__"
+    - name: URL
+      value: "__REPLACE_URL__"

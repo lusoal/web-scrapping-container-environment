@@ -1,0 +1,57 @@
+apiVersion: karpenter.sh/v1alpha5
+kind: Provisioner
+metadata:
+  name: default
+spec:
+  requirements:
+    - key: karpenter.sh/capacity-type         # optional, set to on-demand by default, spot if both are listed
+      operator: In
+      values: ["spot", "ondemand"]
+    - key: kubernetes.io/arch
+      operator: In
+      values:
+      - amd64
+  limits:
+    resources:
+      cpu: 1000                               # optional, recommended to limit total provisioned CPUs
+      memory: 1000Gi
+  providerRef:                                # optional, recommended to use instead of `provider`
+    name: default
+  ttlSecondsAfterEmpty: 30                    # optional, but never scales down if not set
+  ttlSecondsUntilExpired: 2592000             # optional, but never expires if not set
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: default
+spec:
+  subnetSelector:                             # required
+    karpenter.sh/discovery: web-scrapping-demo
+  securityGroupSelector:                      # required, when not using launchTemplate
+    karpenter.sh/discovery: web-scrapping-demo
+  instanceProfile: web-scrapping-demo-managed-ondemand # optional, if already set in controller args
+  userData: |
+     MIME-Version: 1.0
+     Content-Type: multipart/mixed; boundary="BOUNDARY"
+
+     --BOUNDARY
+     Content-Type: text/x-shellscript; charset="us-ascii"
+
+     #!/bin/bash
+      ELASTIC_IPS=$(aws ec2 describe-addresses --query 'Addresses[?AssociationId==null]' | grep '"AllocationId":' | awk '{print $2}' | sed 's/\(.*\),/\1 /')
+      myArray=(${ELASTIC_IPS})
+
+      TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+      INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v http://169.254.169.254/latest/meta-data/instance-id)
+
+
+      echo "Allocating IP Alloc: ${myArray[0]} to instance ${INSTANCE_ID}"
+      ALLOCATION_ID=$(echo ${myArray[0]} | tr -d '"')
+
+      INTERFACE_ID=$(aws ec2 describe-instances --instance-ids ${INSTANCE_ID} | jq '.Reservations[0].Instances[0].NetworkInterfaces[0].NetworkInterfaceId' | tr -d '"')
+
+      aws ec2 associate-address --network-interface-id ${INTERFACE_ID} --allocation-id ${ALLOCATION_ID}
+
+     echo "Running a custom user data script"
+     --BOUNDARY--
+
