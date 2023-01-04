@@ -13,5 +13,5 @@ This demonstration has the purpose of showing how to develop and implement a web
 # EKS Architecture Diagram
 
 <p align="center"> 
-<img src="static/web-scrapping-diagram-eks.png">
+<img src="static/web-scrapping-diagram-eks.jpg">
 </p>
