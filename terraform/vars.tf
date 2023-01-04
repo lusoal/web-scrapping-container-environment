@@ -2,9 +2,26 @@
 variable "cluster_name" {
   description = "Name of cluster - used by Terratest for e2e test automation"
   type        = string
-  default     = ""
+  default     = "web-scrapping-demo"
 }
 
 variable "aws_region" {
   type = string
+}
+
+variable "bucket_name" {
+  default     = "bucket-web-srapping-app"
+  description = "Define a unique name for your bucket"
+}
+
+variable "table_name" {
+  default = "web-scrapping"
+}
+
+variable "registry_name" {
+  default = "scrape-app"
+}
+
+variable "additional_policy_arn" {
+  default = "arn:aws:iam::aws:policy/AdministratorAccess"
 }

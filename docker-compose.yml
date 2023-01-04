@@ -7,17 +7,17 @@ services:
         - "3000:5000"
       restart: always
       environment:
-        AWS_ACCESS_KEY_ID: 
-        AWS_SECRET_ACCESS_KEY: 
+        AWS_ACCESS_KEY_ID:
+        AWS_SECRET_ACCESS_KEY:
         AWS_DEFAULT_REGION:
-        EKS_CLUSTER_NAME: 
-        ECS_CLUSTER_NAME: 
-        SCRAPE_IMAGE_URI: 
-        BUCKET_NAME: 
-        DYNAMO_DB_TABLE_NAME: 
-        PUBLIC_SUBNETS: 
-        SECURITY_GROUPS: 
-        TASK_DEFINITION: 
+        EKS_CLUSTER_NAME:
+        ECS_CLUSTER_NAME:
+        SCRAPE_IMAGE_URI:
+        BUCKET_NAME:
+        DYNAMO_DB_TABLE_NAME:
+        PUBLIC_SUBNETS:
+        SECURITY_GROUPS:
+        TASK_DEFINITION:
   dashboard-app:
       depends_on:
         - controller-app
@@ -28,10 +28,10 @@ services:
         - "5000:5000"
       restart: always
       environment:
-        AWS_ACCESS_KEY_ID: 
-        AWS_SECRET_ACCESS_KEY: 
-        AWS_DEFAULT_REGION: 
-        DYNAMO_DB_TABLE: 
+        AWS_ACCESS_KEY_ID:
+        AWS_SECRET_ACCESS_KEY:
+        AWS_DEFAULT_REGION:
+        DYNAMO_DB_TABLE:
 networks:
   project-network:
     driver: bridge

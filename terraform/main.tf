@@ -54,7 +54,7 @@ module "eks_blueprints" {
 
   vpc_id             = module.vpc.vpc_id
   private_subnet_ids = module.vpc.private_subnets
-  
+
   node_security_group_additional_rules = {
     ingress_nodes_karpenter_port = {
       description                   = "Cluster API to Nodegroup for Karpenter"
@@ -68,19 +68,26 @@ module "eks_blueprints" {
 
   # Add karpenter.sh/discovery tag so that we can use this as securityGroupSelector in karpenter provisioner
   node_security_group_tags = {
-    "karpenter.sh/discovery/${local.name}" = local.name
+    "karpenter.sh/discovery" = local.name
   }
 
   managed_node_groups = {
     mg_5 = {
       node_group_name = "managed-ondemand"
       instance_types  = ["m5.large"]
-      desired_size = 2
-      max_size     = 2
-      min_size     = 2
-      subnet_ids   = module.vpc.public_subnets # Public subnets to instances get Public IP
+      desired_size    = 1
+      max_size        = 1
+      min_size        = 1
+      subnet_ids      = module.vpc.public_subnets # Public subnets to instances get Public IP
     }
   }
+  iam_role_additional_policies = [var.additional_policy_arn] #TODO: Remove after testing
+
+  map_roles = [{
+    rolearn  = "${aws_iam_role.karpenter_role_provisioner.arn}"
+    username = "system:node:{{EC2PrivateDNSName}}"
+    groups   = ["system:bootstrappers", "system:nodes"]
+  }]
 
   tags = local.tags
 }
@@ -103,27 +110,27 @@ module "eks_blueprints_kubernetes_addons" {
   enable_aws_cloudwatch_metrics       = false
   enable_aws_for_fluentbit            = false
 
-  aws_for_fluentbit_helm_config = {
-    name                                      = "aws-for-fluent-bit"
-    chart                                     = "aws-for-fluent-bit"
-    repository                                = "https://aws.github.io/eks-charts"
-    version                                   = "0.1.16"
-    namespace                                 = "logging"
-    aws_for_fluent_bit_cw_log_group           = "/aws/containerinsights/${module.eks_blueprints.eks_cluster_id}/application" # Optional
-    aws_for_fluentbit_cwlog_retention_in_days = 90
-    create_namespace                          = true
-    values = [templatefile("./helm_values/aws-for-fluentbit-values.yaml", {
-      region                          = local.region
-      aws_for_fluent_bit_cw_log_group = "/aws/containerinsights/${module.eks_blueprints.eks_cluster_id}/application"
-    })]
-    set = [
-      {
-        name  = "nodeSelector.kubernetes\\.io/os"
-        value = "linux"
-      }
-    ]
-  }
-  
+  # aws_for_fluentbit_helm_config = {
+  #   name                                      = "aws-for-fluent-bit"
+  #   chart                                     = "aws-for-fluent-bit"
+  #   repository                                = "https://aws.github.io/eks-charts"
+  #   version                                   = "0.1.16"
+  #   namespace                                 = "logging"
+  #   aws_for_fluent_bit_cw_log_group           = "/aws/containerinsights/${module.eks_blueprints.eks_cluster_id}/application" # Optional
+  #   aws_for_fluentbit_cwlog_retention_in_days = 90
+  #   create_namespace                          = true
+  #   values = [templatefile("./helm_values/aws-for-fluentbit-values.yaml", {
+  #     region                          = local.region
+  #     aws_for_fluent_bit_cw_log_group = "/aws/containerinsights/${module.eks_blueprints.eks_cluster_id}/application"
+  #   })]
+  #   set = [
+  #     {
+  #       name  = "nodeSelector.kubernetes\\.io/os"
+  #       value = "linux"
+  #     }
+  #   ]
+  # }
+
   tags = local.tags
 
   depends_on = [module.eks_blueprints.managed_node_groups]
@@ -155,9 +162,11 @@ module "vpc" {
   manage_default_security_group = true
   default_security_group_tags   = { Name = "${local.name}-default" }
 
+  # Using karpenter tag just on public subnets, because its where we want to karpenter launch its nodes
   public_subnet_tags = {
     "kubernetes.io/cluster/${local.name}" = "shared"
     "kubernetes.io/role/elb"              = 1
+    "karpenter.sh/discovery"              = local.name
   }
 
   private_subnet_tags = {
