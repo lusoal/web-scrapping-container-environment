@@ -21,7 +21,3 @@ variable "table_name" {
 variable "registry_name" {
   default = "scrape-app"
 }
-
-variable "additional_policy_arn" {
-  default = "arn:aws:iam::aws:policy/AdministratorAccess"
-}

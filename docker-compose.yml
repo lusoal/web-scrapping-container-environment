@@ -10,14 +10,14 @@ services:
         AWS_ACCESS_KEY_ID:
         AWS_SECRET_ACCESS_KEY:
         AWS_DEFAULT_REGION:
-        EKS_CLUSTER_NAME:
-        ECS_CLUSTER_NAME:
+        EKS_CLUSTER_NAME: web-scrapping-demo
+        ECS_CLUSTER_NAME: web-scrapping-demo-ecs
         SCRAPE_IMAGE_URI:
         BUCKET_NAME:
-        DYNAMO_DB_TABLE_NAME:
+        DYNAMO_DB_TABLE_NAME: web-scrapping
         PUBLIC_SUBNETS:
         SECURITY_GROUPS:
-        TASK_DEFINITION:
+        TASK_DEFINITION: web-scrapping-app:1
   dashboard-app:
       depends_on:
         - controller-app
@@ -31,7 +31,7 @@ services:
         AWS_ACCESS_KEY_ID:
         AWS_SECRET_ACCESS_KEY:
         AWS_DEFAULT_REGION:
-        DYNAMO_DB_TABLE:
+        DYNAMO_DB_TABLE: web-scrapping
 networks:
   project-network:
     driver: bridge

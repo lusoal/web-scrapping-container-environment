@@ -185,6 +185,9 @@ resource "aws_iam_instance_profile" "karpenter_instance_profile" {
 
 data "aws_eks_cluster" "example" {
   name = local.name
+  depends_on = [
+    module.eks_blueprints
+  ]
 }
 
 module "iam_eks_role" {
@@ -197,6 +200,12 @@ module "iam_eks_role" {
       namespace_service_accounts = ["default:scrape-sa"]
     }
   }
+}
+
+
+resource "aws_iam_role_policy_attachment" "test-attach" {
+  role       = module.iam_eks_role.iam_role_name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 
 resource "null_resource" "export_eks_config" {

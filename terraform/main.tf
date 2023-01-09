@@ -75,13 +75,12 @@ module "eks_blueprints" {
     mg_5 = {
       node_group_name = "managed-ondemand"
       instance_types  = ["m5.large"]
-      desired_size    = 1
-      max_size        = 1
-      min_size        = 1
-      subnet_ids      = module.vpc.public_subnets # Public subnets to instances get Public IP
+      desired_size    = 2
+      max_size        = 2
+      min_size        = 2
+      subnet_ids      = module.vpc.private_subnets # Private Subnets for Manage NodeGroups
     }
   }
-  iam_role_additional_policies = [var.additional_policy_arn] #TODO: Remove after testing
 
   map_roles = [{
     rolearn  = "${aws_iam_role.karpenter_role_provisioner.arn}"
@@ -103,33 +102,12 @@ module "eks_blueprints_kubernetes_addons" {
   enable_amazon_eks_kube_proxy = true
 
   # Add-ons
-  enable_aws_load_balancer_controller = true
+  enable_aws_load_balancer_controller = false
   enable_metrics_server               = true
   enable_cluster_autoscaler           = false
   enable_karpenter                    = true
   enable_aws_cloudwatch_metrics       = false
   enable_aws_for_fluentbit            = false
-
-  # aws_for_fluentbit_helm_config = {
-  #   name                                      = "aws-for-fluent-bit"
-  #   chart                                     = "aws-for-fluent-bit"
-  #   repository                                = "https://aws.github.io/eks-charts"
-  #   version                                   = "0.1.16"
-  #   namespace                                 = "logging"
-  #   aws_for_fluent_bit_cw_log_group           = "/aws/containerinsights/${module.eks_blueprints.eks_cluster_id}/application" # Optional
-  #   aws_for_fluentbit_cwlog_retention_in_days = 90
-  #   create_namespace                          = true
-  #   values = [templatefile("./helm_values/aws-for-fluentbit-values.yaml", {
-  #     region                          = local.region
-  #     aws_for_fluent_bit_cw_log_group = "/aws/containerinsights/${module.eks_blueprints.eks_cluster_id}/application"
-  #   })]
-  #   set = [
-  #     {
-  #       name  = "nodeSelector.kubernetes\\.io/os"
-  #       value = "linux"
-  #     }
-  #   ]
-  # }
 
   tags = local.tags
 

@@ -28,7 +28,7 @@ spec:
   subnetSelector:                             # required
     karpenter.sh/discovery: web-scrapping-demo
   securityGroupSelector:                      # required, when not using launchTemplate
-    karpenter.sh/discovery: web-scrapping-demo
+    kubernetes.io/cluster/web-scrapping-demo: owned
   instanceProfile: karpenter-node-role # optional, if already set in controller args
   userData: |
      MIME-Version: 1.0
