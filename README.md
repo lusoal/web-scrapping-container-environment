@@ -64,6 +64,8 @@ For deploying the solution we are gonna need to execute few steps, everything in
 
 We are using [EKS Blueprints](https://github.com/aws-ia/terraform-aws-eks-blueprints) for the EKS componentes, and pure terraform registry aws resources for other resourcers, such as, S3 bucket, DynamoDB table etc.
 
+You can also enable terraform to create extra Elastic IPs if you desire. Set the **eip_config** variable to True and select the number of IPs you need.
+
 ```bash
 cd terraform
 terraform init
