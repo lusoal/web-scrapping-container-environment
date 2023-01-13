@@ -224,3 +224,8 @@ resource "null_resource" "exec_sa" {
     null_resource.export_eks_config
   ]
 }
+
+resource "aws_eip" "elastic_ips" {
+  count = var.eip_config.enabled ? var.eip_config.elastic_ips : 0
+  vpc = true
+}

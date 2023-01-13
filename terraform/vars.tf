@@ -21,3 +21,10 @@ variable "table_name" {
 variable "registry_name" {
   default = "scrape-app"
 }
+
+variable "eip_config" {
+  default = {
+    enabled       = false
+    elastic_ips   = 3
+  }
+}
