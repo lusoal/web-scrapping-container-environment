@@ -1,9 +1,8 @@
-# Web Scrapping Container Environment
-
 This demonstration has the purpose of showing how to develop and implement a webscrapping solution using Containers. The application can deploy webscrapping containers into either EKS or ECS, **each container will scrape its own URL defined by Controller Application**.
 
 # Why does this demo exist?
-## Scneario
+
+## Scenario
 You have webscraping code that you want to run in thousands of ephemeral containers using thousands of unique IPs to scrape websites for potentially malicious code. The life of each container is the duration of the webscraping job. You are working with the constraint that you must use your own pool of  elastic IP address in your VPC and not randomly assigned public IPs. Ideally you want to use AWS Fargate or Lambda services execpt the issue you've hit with is that neither of them support the use of Elastic IPs.
 
 So you want an alternative solution using EC2 based EKS (which does support Elastic IPs) but want the user experience of that service to be similar to Fargate - when it comes to automation of management overhead.
