@@ -2,6 +2,24 @@
 
 This demonstration has the purpose of showing how to develop and implement a webscrapping solution using Containers. The application can deploy webscrapping containers into either EKS or ECS, **each container will scrape its own URL defined by Controller Application**.
 
+# Why does this demo exist?
+## Scneario
+You have webscraping code that you want to run in thousands of ephemeral containers using thousands of unique IPs to scrape websites for potentially malicious code. The life of each container is the duration of the webscraping job. You are working with the constraint that you must use your own pool of  elastic IP address in your VPC and not randomly assigned public IPs. Ideally you want to use AWS Fargate or Lambda services execpt the issue you've hit with is that neither of them support the use of Elastic IPs.
+
+So you want an alternative solution using EC2 based EKS (which does support Elastic IPs) but want the user experience of that service to be similar to Fargate - when it comes to automation of management overhead.
+
+This solution showcases that by demonstrating automation in the following areas:
+1. Kubernetes cluster management is automated in two ways:
+   * Amazon EKS automates the control plane management including scaling and HA
+   * [Karpenter](https://karpenter.sh/) automates worker node management including scaling and HA
+2. Container management is automated by Kubernetes including scaling and HA
+3. Karpenter itself is deployed as a Kubernets app and hence it's management is managed by Kubernetes (scaling and HA)
+4. The residual management overhead that's left for the user is minimal, mostly involving design time concerns like choices for instance types and sizes & observability of infra metrics
+ 
+
+## Application deployment
+The user experience for deploying an application remains the same between this soltution and Fargate-EKS. Users would have to build a application container and submit it to the Kubernetes engine to run.
+
 # Pre reqs
 
 - kubectl
